@@ -1,0 +1,58 @@
+https://github.com/raysan5/raylib/wiki/Working-on-GNU-Linux#nixnixos
+
+Begin by downloading the latest stable release of raylib into your project folder. Use the following commands:
+cd your-project-folder
+mkdir external
+wget https://github.com/raysan5/raylib/archive/refs/tags/5.5.tar.gz -P external/
+tar xvf external/5.5.tar.gz -C external/1
+
+create the Nix flake
+
+{
+  description = "Raylib development environment";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+  };
+
+  outputs = { self , nixpkgs ,... }: let
+    system = "x86_64-linux";
+  in {
+    devShells."${system}".default = let
+      pkgs = import nixpkgs {
+        inherit system;
+      };
+    in pkgs.mkShell {
+      packages = [
+        pkgs.libGL
+
+        # X11 dependencies
+        pkgs.xorg.libX11
+        pkgs.xorg.libX11.dev
+        pkgs.xorg.libXcursor
+        pkgs.xorg.libXi
+        pkgs.xorg.libXinerama
+        pkgs.xorg.libXrandr
+
+        # Uncomment the line below if you want to build Raylib with web support
+        # pkgs.emscripten
+      ];
+    };
+  };
+}
+
+Create the development environment with the dependencies using:
+nix develop
+To build raylib, navigate to the src directory inside the external/raylib-5.5 folder and run make:
+cd external/raylib-5.5/src/
+make PLATFORM=PLATFORM_DESKTOP
+Now you can compile your project with Raylib. The simplest possible Makefile for this would be:
+RAYLIB ?= ./external/raylib-5.5/src/
+
+all:
+    gcc src/main.c -I $(RAYLIB) -L $(RAYLIB) -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+The simplest possible build command
+After installing raylib from source or package manager, you can build a project with this command (modify as necessary):
+
+gcc game.c -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+Creating a Makefile will help with building as the project grows.
