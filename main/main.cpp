@@ -54,10 +54,14 @@ extern "C" void app_main()
         // Print non-black pixels
         for (int i = 0; i < sizeof(image_data) / sizeof(image_data[0]); i++)
         {
-            if (image_data[i].x >= dma_display->width() || image_data[i].y >= dma_display->height())
+         uint16_t x = image_data[i].x;
+         uint16_t  y = image_data[i].y;
+            if (x >= dma_display->width() || y >= dma_display->height())
             {
                 ESP_LOGI(TAG, "pixel number %d  x=%d y=%d out of bound", i, image_data[i].x, image_data[i].y);
+                break; // unrecoverable error
             }
+            dma_display->drawPixel(x, y, dma_display->color565(image_data[i].r, image_data[i].g, image_data[i].b));
 
             // ESP_LOGI(TAG, "Lighting up line %d", y);
 
