@@ -63,10 +63,27 @@ extern "C" void app_main()
             }
             dma_display->drawPixel(x, y, dma_display->color565(image_data[i].r, image_data[i].g, image_data[i].b));
 
-            // ESP_LOGI(TAG, "Lighting up line %d", y);
 
-            // Wait for a short duration to create a visible effect
-            vTaskDelay(100 / portTICK_PERIOD_MS);
+
+          /*  drawIcon draws a C style bitmap.
+          //  Example 10x5px bitmap of a yellow sun
+          //
+            int half_sun [50] = {
+                0x0000, 0x0000, 0x0000, 0xffe0, 0x0000, 0x0000, 0xffe0, 0x0000, 0x0000, 0x0000,
+                0x0000, 0xffe0, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xffe0, 0x0000,
+                0x0000, 0x0000, 0x0000, 0xffe0, 0xffe0, 0xffe0, 0xffe0, 0x0000, 0x0000, 0x0000,
+                0xffe0, 0x0000, 0xffe0, 0xffe0, 0xffe0, 0xffe0, 0xffe0, 0xffe0, 0x0000, 0xffe0,
+                0x0000, 0x0000, 0xffe0, 0xffe0, 0xffe0, 0xffe0, 0xffe0, 0xffe0, 0x0000, 0x0000,
+            };
+
+            MatrixPanel_I2S_DMA matrix;
+
+            matrix.drawIcon (half_sun, 0,0,10,5);
+          */
+                    // ESP_LOGI(TAG, "Lighting up line %d", y);
+
+                    // Wait for a short duration to create a visible effect
+                    /*vTaskDelay(100 / portTICK_PERIOD_MS);*/
         }
 
         ESP_LOGI(TAG, "Finished iterating through all lines.");
