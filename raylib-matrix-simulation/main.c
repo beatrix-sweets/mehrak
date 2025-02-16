@@ -1,34 +1,90 @@
+#include "image.h" // Include the generated header file
 #include "raylib.h"
-#include "image.h"  // Include the generated header file
+// #include <cstddef>
 #include <stdio.h>
 
-#define LED_SIZE 1  // Size of each LED (adjust as needed)
-#define SCREEN_WIDTH  (64 * LED_SIZE)  // Adjust based on image size
-#define SCREEN_HEIGHT (64 * LED_SIZE)  // Adjust based on image size
+#define LED_SIZE 10                   // Size of each LED (adjust as needed)
+#define SCREEN_WIDTH (64 * LED_SIZE)  // Adjust based on image size
+#define SCREEN_HEIGHT (64 * LED_SIZE) // Adjust based on image size
 
-int main() {
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "LED Matrix Simulation");
-    SetTargetFPS(60);
+typedef struct Timer {
+  double startTime; // Start time (seconds)
+  double lifeTime;  // Lifetime (seconds)
+} Timer;
 
-    while (!WindowShouldClose()) {
-        BeginDrawing();
-        ClearBackground(BLACK);
-
-        // Draw each non-black pixel as an LED
-        for (int i = 0; i < sizeof(image_data) / sizeof(image_data[0]); i++) {
-            int x = image_data[i].x * LED_SIZE;
-            int y = image_data[i].y * LED_SIZE;
-            Color color = (Color){ image_data[i].r, image_data[i].g, image_data[i].b, 255 };
-            // printf("printing pixel at position %d, %d", x,y);
-
-            // Draw as a square (or use DrawCircle for a round LED effect)
-            DrawRectangle(x, y, LED_SIZE, LED_SIZE, color);
-        }
-
-        EndDrawing();
-    }
-
-    CloseWindow();
-    return 0;
+void StartTimer(Timer *timer, double lifetime) {
+  timer->startTime = GetTime();
+  timer->lifeTime = lifetime;
 }
 
+void UpdateTimer(Timer *timer) {
+  if (timer != NULL) {
+    timer->lifeTime -= GetFrameTime();
+  }
+}
+
+bool TimerDone(Timer timer) {
+  return GetTime() - timer.startTime >= timer.lifeTime;
+}
+
+double GetElapsed(Timer timer) { return GetTime() - timer.startTime; }
+
+Timer animationT = {0};
+float animationSpeed = 0.05f; // 50ms
+int currentPixel = 0;
+bool isFirstBoot = true;
+
+int main() {
+  InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "LED Matrix Simulation");
+  SetTargetFPS(60);
+
+  StartTimer(&animationT, animationSpeed);
+  ClearBackground(BLACK);
+
+  while (!WindowShouldClose()) {
+    BeginDrawing();
+
+    UpdateTimer(&animationT);
+
+    if (currentPixel < sizeof(image_data)) {
+      if (isFirstBoot) {
+        // During first boot, draw pixels with delay
+        if (TimerDone(animationT)) {
+          int x = image_data[currentPixel].x * LED_SIZE;
+          int y = image_data[currentPixel].y * LED_SIZE;
+          Color color =
+              (Color){image_data[currentPixel].r, image_data[currentPixel].g,
+                      image_data[currentPixel].b, 255};
+          DrawRectangle(x, y, LED_SIZE, LED_SIZE, color);
+          currentPixel++;
+          StartTimer(&animationT, animationSpeed);
+        }
+      } else {
+        // After first boot, draw all pixels instantly
+        for (; currentPixel < sizeof(image_data); currentPixel++) {
+          int x = image_data[currentPixel].x * LED_SIZE;
+          int y = image_data[currentPixel].y * LED_SIZE;
+          Color color =
+              (Color){image_data[currentPixel].r, image_data[currentPixel].g,
+                      image_data[currentPixel].b, 255};
+          DrawRectangle(x, y, LED_SIZE, LED_SIZE, color);
+        }
+      }
+    } else {
+      // All pixels drawn, start long delay
+      if (TimerDone(animationT)) {
+        // Reset for next iteration
+        currentPixel = 0;
+        isFirstBoot = false;
+        ClearBackground(BLACK);
+        StartTimer(&animationT,
+                   20.0f); // 20 second delay between iterations
+      }
+    }
+
+    EndDrawing();
+  }
+
+  CloseWindow();
+  return 0;
+}
