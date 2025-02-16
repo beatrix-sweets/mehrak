@@ -30,7 +30,8 @@ bool TimerDone(Timer timer) {
 double GetElapsed(Timer timer) { return GetTime() - timer.startTime; }
 
 Timer animationT = {0};
-float animationSpeed = 0.05f; // 50ms
+/*float animationSpeed = 0.05f; // 50ms*/
+float animationSpeed = 0.025; // 25ms
 int currentPixel = 0;
 bool isFirstBoot = true;
 
