@@ -1,6 +1,7 @@
-#include "image.h" // Include the generated header file
+#include "images.h" // Include the generated header file
 #include "raylib.h"
-// #include <cstddef>
+/*#include <cstddef>*/
+/*#include <cstdint>*/
 #include <stdio.h>
 
 #define LED_SIZE 10                   // Size of each LED (adjust as needed)
@@ -34,6 +35,7 @@ Timer animationT = {0};
 float animationSpeed = 0.025; // 25ms
 int currentPixel = 0;
 bool isFirstBoot = true;
+uint64_t fully_drawn_count = 0;
 
 int main() {
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "LED Matrix Simulation");
@@ -46,28 +48,30 @@ int main() {
     BeginDrawing();
 
     UpdateTimer(&animationT);
+    Image_t currentImage = images[fully_drawn_count];
 
-    if (currentPixel < sizeof(image_data)) {
+
+    if (currentPixel < currentImage.size) {
       if (isFirstBoot) {
         // During first boot, draw pixels with delay
         if (TimerDone(animationT)) {
-          int x = image_data[currentPixel].x * LED_SIZE;
-          int y = image_data[currentPixel].y * LED_SIZE;
+          int x = currentImage.data[currentPixel].x * LED_SIZE;
+          int y = currentImage.data[currentPixel].y * LED_SIZE;
           Color color =
-              (Color){image_data[currentPixel].r, image_data[currentPixel].g,
-                      image_data[currentPixel].b, 255};
+              (Color){currentImage.data[currentPixel].r, currentImage.data[currentPixel].g,
+                      currentImage.data[currentPixel].b, 255};
           DrawRectangle(x, y, LED_SIZE, LED_SIZE, color);
           currentPixel++;
           StartTimer(&animationT, animationSpeed);
         }
       } else {
         // After first boot, draw all pixels instantly
-        for (; currentPixel < sizeof(image_data); currentPixel++) {
-          int x = image_data[currentPixel].x * LED_SIZE;
-          int y = image_data[currentPixel].y * LED_SIZE;
+        for (; currentPixel < currentImage.size; currentPixel++) {
+          int x = currentImage.data[currentPixel].x * LED_SIZE;
+          int y = currentImage.data[currentPixel].y * LED_SIZE;
           Color color =
-              (Color){image_data[currentPixel].r, image_data[currentPixel].g,
-                      image_data[currentPixel].b, 255};
+              (Color){currentImage.data[currentPixel].r, currentImage.data[currentPixel].g,
+                      currentImage.data[currentPixel].b, 255};
           DrawRectangle(x, y, LED_SIZE, LED_SIZE, color);
         }
       }
@@ -78,8 +82,11 @@ int main() {
         currentPixel = 0;
         isFirstBoot = false;
         ClearBackground(BLACK);
+        /*StartTimer(&animationT,*/
+        /*           20.0f); // 20 second delay between iterations*/
         StartTimer(&animationT,
-                   20.0f); // 20 second delay between iterations
+                   2.0f); // 2 second delay between iterations
+    fully_drawn_count = (fully_drawn_count + 1 ) % num_images;
       }
     }
 
