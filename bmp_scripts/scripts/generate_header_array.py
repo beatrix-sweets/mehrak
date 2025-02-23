@@ -58,10 +58,10 @@ def main():
             f.write("\n};\n\n")
         
         # Write metadata struct using underscores.
-        f.write("typedef struct {\n    const char *name;\n    const Pixel *data;\n    unsigned int size;\n} Image;\n\n")
+        f.write("typedef struct {\n    const char *name;\n    const Pixel *data;\n    unsigned int size;\n} Image_t;\n\n")
         
         # Write the array of image metadata.
-        f.write("const Image images[] = {\n")
+        f.write("const Image_t images[] = {\n")
         for image_name, pixels in image_data_list:
             f.write(f"    {{\"{image_name}\", {image_name}_data, {len(pixels)}}},\n")
         f.write("};\n\n")
