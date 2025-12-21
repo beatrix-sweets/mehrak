@@ -9,6 +9,7 @@ ESP32-based project for driving a 64x64 LED matrix to display Mehrak as part of 
 - Power supply terminal adapter
 - USB to DC Convert Cable
 - Powerbank (providing 5V/3A port)
+- external Button
 
 # Quick Start
 1. Follow the [Getting Started Guide for ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html) to install ESP-IDF v 5.3.2 onto your computer. (eg: git clone -b v5.3.2 --recursive https://github.com/espressif/esp-idf.git esp-idf-v5.3.2 then run install.sh and export.sh)
@@ -23,4 +24,6 @@ You can display the output in the terminal using picom:
 ```bash
 picocom -b 115200 /dev/ttyUSB0
 ```
+exit with Ctrl-A -> Ctrl-X  (sometimes even just Ctrl-X works)
 
+you won't be able to flash while picocom is running
