@@ -3,3 +3,6 @@ managed_components/
 sdkconfig
 main/build/
 .cache
+
+export.sh
+nix

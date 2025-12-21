@@ -12,3 +12,6 @@ flash:
 monitor:
 	picocom -b 115200 /dev/ttyUSB0
 	# minicom -D /dev/ttyUSB0 -b 115200
+
+logs:
+	monitor

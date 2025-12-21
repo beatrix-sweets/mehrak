@@ -16,3 +16,11 @@ ESP32-based project for driving a 64x64 LED matrix to display Mehrak as part of 
 3. Setup esp-idf qith `. ~/esp/esp-idf/export.sh`.
 4. Build with `idf.py build`.
 5. Connect ESP32 and flash with `idf.py flash`.
+
+## Debugging
+You can display the output in the terminal using picom:
+
+```bash
+picocom -b 115200 /dev/ttyUSB0
+```
+

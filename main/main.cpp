@@ -27,6 +27,10 @@ extern "C" void app_main() {
   mxconfig.gpio.b1 = GPIO_NUM_27;  // B1
   mxconfig.gpio.e = GPIO_NUM_32;   // E
 
+  const uint8_t GPIO_BUTTON = GPIO_NUM_19;
+  pinMode(GPIO_BUTTON, INPUT_PULLUP);  // use internal resistor
+
+
   // Create the matrix display object
   dma_display = new MatrixPanel_I2S_DMA(mxconfig);
   if (!dma_display) {
@@ -47,7 +51,8 @@ extern "C" void app_main() {
     
     // Clear the screen before lighting up with the current image
     dma_display->fillScreenRGB888(0, 0, 0);
-    
+    int buttonState = digitalRead(GPIO_BUTTON);
+    ESP_LOGI(TAG, "button state is: %d", buttonState);
     ESP_LOGI(TAG, "Iterating through non black pixels...");
 
       Image_t currentImage = images[image_idx];
