@@ -11,6 +11,9 @@ ESP32-based project for driving a 64x64 LED matrix to display Mehrak as part of 
 - Powerbank (providing 5V/3A port)
 - external Button
 
+if you don't want to use "INPUT_PULLUP" pinmode in code (uses internal ESP32 resistor, refer to GPIO_BUTTON constant in code)
+- external resistor for button
+
 # Quick Start
 1. Follow the [Getting Started Guide for ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html) to install ESP-IDF v 5.3.2 onto your computer. (eg: git clone -b v5.3.2 --recursive https://github.com/espressif/esp-idf.git esp-idf-v5.3.2 then run install.sh and export.sh)
 2. Clone the repo with `git clone --recursive git@github.com:beatrix-sweets/mehrak.git`.
@@ -29,5 +32,8 @@ exit with Ctrl-A -> Ctrl-X  (sometimes even just Ctrl-X works)
 you won't be able to flash while picocom is running
 
 ## Current Problems
-- switching from one state of the machine to the other is kinda slow and unpredictable because of polling strategy
+- we may be abe to make switching from one state of the machine to the other more responsive even in polling strategy (also depends on button quaity)
 - polling strategy is used to achieve a more predictable and debuggable code path compared to even driven interrupts
+- maybe we should implement an extra image which is only used at the start of the slideshow so it's obvious when we switch to slideshow state
+
+- too many globals, some of which we can probably get rid of by passing them as arguments explicitly

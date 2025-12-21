@@ -7,6 +7,8 @@
 
 MatrixPanel_I2S_DMA *dma_display = nullptr;
 const char *TAG = "Matrix";
+const int IDLE_TIME_MS = 200;
+const int SLIDESHOW_INTERVAL_MS = 2000;
 
 uint8_t image_idx = 0; // ideally we load different imagedata based on index
 
@@ -23,6 +25,7 @@ int poll_button(uint8_t gpio_num){
 void handle_button_press(int buttonState, states_idx_t *state){
       if (*state == STATE_IMAGE_MAX) {
         *state = STATE_SLIDESHOW;  // Wrap to beginning
+        image_idx = 0; //reset the global
     } else {
         // Clear the screen before lighting up with the current image
         dma_display->fillScreenRGB888(0, 0, 0);
@@ -81,15 +84,24 @@ void printImage(Image_t image){
 
 
 void displaySlideshow(){
-  // Clear the screen before lighting up with the current image
-  dma_display->fillScreenRGB888(0, 0, 0);
-
-  Image_t currentImage = images[image_idx];
-  printImage(currentImage);
-  image_idx = (image_idx + 1) % num_images;
+  static int64_t  last_change_time = 0;
+  int64_t now = esp_timer_get_time() / 1000; // Convert microseconds to ms
+  if(now - last_change_time >= SLIDESHOW_INTERVAL_MS){
+    // Clear the screen before lighting up with the current image
+    dma_display->fillScreenRGB888(0, 0, 0);
+    Image_t currentImage = images[image_idx];
+    printImage(currentImage);
+    image_idx = (image_idx + 1) % num_images;
+    last_change_time = now;
+  }
+  else return; // no-op if not enough time has passed
 }
-void displayImage(){
-      if (state_machine_idx >= STATE_IMAGE_0 && state_machine_idx <= STATE_IMAGE_MAX) {
+
+void displayImage(bool stateChanged){
+    if (state_machine_idx >= STATE_IMAGE_0 && state_machine_idx <= STATE_IMAGE_MAX) {
+      if (!stateChanged){
+        return; // no-op if button was not pressed
+      }
         Image_t currentImage = images[state_machine_idx];
         printImage(currentImage);  // state is 0-8, perfect for array
     } else if (state_machine_idx == STATE_SLIDESHOW) {
@@ -121,6 +133,7 @@ extern "C" void app_main() {
 
   const uint8_t GPIO_BUTTON = GPIO_NUM_19;
   pinMode(GPIO_BUTTON, INPUT_PULLUP);  // use internal resistor
+  bool stateChanged; // wether the state machine index has changed or not (reacts to button press)
 
 
   // Create the matrix display object
@@ -140,11 +153,13 @@ extern "C" void app_main() {
 
   /*========== MAIN LOOP =========*/
   while (1) {
+    stateChanged = false;
     int buttonstate = poll_button(GPIO_BUTTON);
     if (buttonstate == BUTTON_PRESSED)
     {
       ESP_LOGI("button pressed", "state was: %d", state_machine_idx);
       handle_button_press(buttonstate, &state_machine_idx);
+      stateChanged = true;
     }
     
     ESP_LOGI(TAG, "Iterating through non black pixels...");
@@ -154,11 +169,9 @@ extern "C" void app_main() {
       displaySlideshow();
       break;
     default:
-      displayImage();
+      displayImage(stateChanged);
       break;
     }
-    /*vTaskDelay(2000 / portTICK_PERIOD_MS);*/
-    vTaskDelay(2000 / portTICK_PERIOD_MS); // set a long period of idle, after
-                                          // which we can skip to image2?
+    vTaskDelay(IDLE_TIME_MS / portTICK_PERIOD_MS); // set a small period of idle
   }
 }
