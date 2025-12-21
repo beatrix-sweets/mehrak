@@ -27,3 +27,7 @@ picocom -b 115200 /dev/ttyUSB0
 exit with Ctrl-A -> Ctrl-X  (sometimes even just Ctrl-X works)
 
 you won't be able to flash while picocom is running
+
+## Current Problems
+- switching from one state of the machine to the other is kinda slow and unpredictable because of polling strategy
+- polling strategy is used to achieve a more predictable and debuggable code path compared to even driven interrupts
