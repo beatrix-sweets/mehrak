@@ -40,10 +40,12 @@ def main():
     
     image_data_list = []
     for filename in sys.argv[1:]:
+        print(f"Building header from: {filename}")
         pixels, image_name = process_image(filename)
         image_data_list.append((image_name, pixels))
     
-    with open("images.h", "w") as f:
+    # with open("images.h", "w") as f:
+    with open("main/images.h", "w") as f:
         f.write("#include <stdint.h>\n")
         f.write("#include <stddef.h>\n\n")
         f.write("typedef struct {\n    uint16_t x, y;\n    uint8_t r, g, b;\n} Pixel;\n\n")
@@ -63,6 +65,7 @@ def main():
         # Write the array of image metadata.
         f.write("const Image_t images[] = {\n")
         for image_name, pixels in image_data_list:
+            print(f"metadata from: {image_name}")
             f.write(f"    {{\"{image_name}\", {image_name}_data, {len(pixels)}}},\n")
         f.write("};\n\n")
         
