@@ -4,5 +4,9 @@ sdkconfig
 main/build/
 .cache
 
+bmp_scripts/images/raw/*
+!bmp_scripts/images/raw/.gitkeep
+
 export.sh
-nix
+nix/
+
