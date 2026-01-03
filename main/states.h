@@ -12,7 +12,7 @@ typedef enum {
     STATE_IMAGE_6 = 6,     /* show respective image */
     STATE_IMAGE_7 = 7,     /* show respective image */
     STATE_IMAGE_8 = 8,     /* show respective image */
-    STATE_IMAGE_MAX = 2,     /* max image index in image array - change this based on the number of images you have */
+    STATE_IMAGE_MAX = 6,     /* max image index in image array - change this based on the number of images you have */
 } states_idx_t;
 
 /**

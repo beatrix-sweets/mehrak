@@ -90,7 +90,10 @@ void displaySlideshow(){
     // Clear the screen before lighting up with the current image
     dma_display->fillScreenRGB888(0, 0, 0);
     Image_t currentImage = images[image_idx];
-    printImage(currentImage);
+    if (strcmp(currentImage.name, "instagram_qr") != 0)  // print if not the qr code
+    {
+      printImage(currentImage);
+    }
     image_idx = (image_idx + 1) % num_images;
     last_change_time = now;
   }

@@ -14,17 +14,45 @@ def sanitize_name(name):
         sanitized = '_' + sanitized
     return sanitized
 
+def read_bmp_dimensions(bmp_filename):
+    """Read width and height from BMP file header"""
+    with open(bmp_filename, "rb") as f:
+        # BMP header: skip first 18 bytes to get to width/height
+        f.seek(18)
+        width = struct.unpack("<I", f.read(4))[0]  # 4 bytes, little-endian
+        height = struct.unpack("<I", f.read(4))[0]  # 4 bytes, little-endian
+    return width, height
+
 def process_image(filename):
-    IMAGE_WIDTH = 64
-    IMAGE_HEIGHT = 64
+    # Derive BMP filename from raw filename
+    bmp_filename = filename.replace('/raw/', '/bmp/').replace('.raw', '.bmp')
+    
+    if os.path.exists(bmp_filename):
+        IMAGE_WIDTH, IMAGE_HEIGHT = read_bmp_dimensions(bmp_filename)
+        print(f"  Detected dimensions: {IMAGE_WIDTH}x{IMAGE_HEIGHT}")
+    else:
+        # Fallback to 64x64 if BMP not found
+        IMAGE_WIDTH = 64
+        IMAGE_HEIGHT = 64
+        print(f"  BMP not found, using default: {IMAGE_WIDTH}x{IMAGE_HEIGHT}")
     
     with open(filename, "rb") as f:
         raw_data = f.read()
 
+    # Calculate row padding (BMP rows are padded to multiples of 4 bytes)
+    row_size_bytes = IMAGE_WIDTH * 3
+    padding = (4 - (row_size_bytes % 4)) % 4
+    
     non_black_pixels = []
     for y in range(IMAGE_HEIGHT):
         for x in range(IMAGE_WIDTH):
-            index = (y * IMAGE_WIDTH + x) * 3
+            # Account for padding at end of each row
+            index = (y * (row_size_bytes + padding)) + (x * 3)
+            
+            if index + 3 > len(raw_data):
+                print(f"  Warning: Not enough data at ({x}, {y})")
+                break
+                
             r, g, b = struct.unpack("BBB", raw_data[index:index+3])
             if (r, g, b) != (0, 0, 0):
                 non_black_pixels.append(f"{{{x}, {y}, 0x{r:02X}, 0x{g:02X}, 0x{b:02X}}}")
@@ -44,7 +72,6 @@ def main():
         pixels, image_name = process_image(filename)
         image_data_list.append((image_name, pixels))
     
-    # with open("images.h", "w") as f:
     with open("main/images.h", "w") as f:
         f.write("#include <stdint.h>\n")
         f.write("#include <stddef.h>\n\n")
@@ -75,4 +102,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
