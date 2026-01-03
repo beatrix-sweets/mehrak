@@ -14,7 +14,7 @@ qr = qrcode.QRCode(
     version=4,  # Version 4 = 33x33
     error_correction=qrcode.constants.ERROR_CORRECT_L,
     box_size=1,
-    border=4,
+    border=4, # total sie = 41x41 (33 + 4x2)
 )
 
 # Add your URL
